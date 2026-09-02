@@ -1,6 +1,10 @@
 const int EnA=11;
 const int EnB=10;
 
+const int S3=2;
+const int S2=3;
+const int OUT=4;
+
 const int pingPin=8;
 
 void setup() {
@@ -8,17 +12,20 @@ void setup() {
 
   pinMode(EnA, OUTPUT);
   pinMode(EnB, OUTPUT);
+
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(OUT, INPUT);
 }
 
 void loop() {
   //right motor
-  analogWrite(EnA, 50);
+  analogWrite(EnA, 0);
   //left motor
-  analogWrite(EnB, 200);
+  analogWrite(EnB, 0);
 
   long duration, cm;
 
-  /*
   //change to trig
   pinMode(pingPin, OUTPUT);
   digitalWrite(pingPin, LOW);
@@ -33,12 +40,32 @@ void loop() {
   pinMode(pingPin, INPUT);
   duration = pulseIn(pingPin, HIGH);
 
+  //record and print time
   cm = microsecondsToCentimetres(duration);  
   Serial.print(cm);
   Serial.print("cm");
   Serial.println();  
-  delay(100);
-  */
+
+  //red
+  digitalWrite(S2,LOW);
+  digitalWrite(S2,LOW);
+  Serial.print('R');
+  Serial.print(pulseIn(OUT,LOW));
+  delay(200);
+  //green
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  Serial.print('G');
+  Serial.print(pulseIn(OUT,LOW));
+  delay(200);
+  //blue
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  Serial.print('B');
+  Serial.print(pulseIn(OUT,LOW));
+  delay(200);
+  
+  Serial.println();
 }
 
 long microsecondsToCentimetres(long microseconds)
