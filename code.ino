@@ -24,7 +24,7 @@ void setup() {
   pinMode(S3, OUTPUT);
   pinMode(OUT, INPUT);
 
-  qtr.setTypeAnalog();
+  qtr.setTypeRC();
   qtr.setSensorPins((const uint8_t[]){A0, A1, A2, A3}, SensorCount);
 
   Serial.begin(9600);
@@ -32,9 +32,9 @@ void setup() {
 
 void loop() {
   //right motor
-  analogWrite(EnA, 0);
+  analogWrite(EnA, 100);
   //left motor
-  analogWrite(EnB, 0);
+  analogWrite(EnB, 100);
 
   long duration, cm;
 
@@ -57,8 +57,8 @@ void loop() {
   Serial.print(cm);
   Serial.println("cm");
   
-  // white values r23 g28 b23
-  // black values r165 g216 b164
+  // white raw values 23 28 23
+  // black raw values 165 216 164
 
   int green[] = {175, 225, 174};
   bool greenFlag[] = {false, false, false};
@@ -85,8 +85,8 @@ void loop() {
   } else if (abs(redVar-yellow[0])<10) {
     yellowFlag[0]=true;
   }
-
   delay(100);
+
   //green
   digitalWrite(S2,HIGH);
   digitalWrite(S3,HIGH);
@@ -103,8 +103,8 @@ void loop() {
   } else if (abs(greenVar-yellow[1])<10) {
     yellowFlag[1]=true;
   }
-
   delay(100);
+
   //blue
   digitalWrite(S2,LOW);
   digitalWrite(S3,HIGH);
@@ -135,21 +135,25 @@ void loop() {
   purpleFlag[0] = false; purpleFlag[1] = false; purpleFlag[2] = false;
   yellowFlag[0] = false; yellowFlag[1] = false; yellowFlag[2] = false;
 
-  // read raw sensor values
+  //line array
   qtr.read(sensorValues);
-
-  // print the sensor values as numbers from 0 to 1023, where 0 means maximum
-  // reflectance and 1023 means minimum reflectance
+  int corrVal = 0;
   for (uint8_t i = 0; i < SensorCount; i++) {
-    Serial.print(sensorValues[i]);
-    Serial.print('\t');
+    if (i==0) {
+      corrVal+=(2*sensorValues[i]);
+    } else if (i==1) {
+      corrVal+=sensorValues[i];
+    } else if (i==2) {
+      corrVal-=sensorValues[i];
+    } else if (i==3) {
+      corrVal-=(2*sensorValues[i]);
+    }
   }
+  Serial.print("corrVal ");
+  Serial.println(corrVal);
   
   Serial.println();
   delay(100);
 }
 
-long microsecondsToCentimetres(long microseconds)
-{
-  return microseconds / 29 / 2;
-}
+long microsecondsToCentimetres(long microseconds) { return microseconds / 29 / 2; }
