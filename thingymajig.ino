@@ -12,7 +12,8 @@ const int S3=2;
 const int S2=3;
 const int OUT=4;
 
-const int pingPin=8;
+const int trig=13;
+const int echo=12;
 
 void setup() {
   Serial.begin(9600);
@@ -23,6 +24,9 @@ void setup() {
   pinMode(S2, OUTPUT);
   pinMode(S3, OUTPUT);
   pinMode(OUT, INPUT);
+
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
 
   qtr.setTypeRC();
   qtr.setSensorPins((const uint8_t[]){A0, A1, A2, A3}, SensorCount);
@@ -38,35 +42,29 @@ void loop() {
 
   long duration, cm;
 
-  //change to trig
-  pinMode(pingPin, OUTPUT);
-  digitalWrite(pingPin, LOW);
+  digitalWrite(trig, LOW);
   delayMicroseconds(2);
-  digitalWrite(pingPin, HIGH);
-  //pinging
+  digitalWrite(trig, HIGH);
   delayMicroseconds(5);
-  //signal off
-  digitalWrite(pingPin, LOW);
+  digitalWrite(trig, LOW);
 
-  //change to echo  
-  pinMode(pingPin, INPUT);
-  duration = pulseIn(pingPin, HIGH);
+  duration = pulseIn(echo, HIGH);
 
   //record and print time
   cm = microsecondsToCentimetres(duration);  
   Serial.print(cm);
   Serial.println("cm");
   
-  // white raw values 23 28 23
-  // black raw values 165 216 164
+  // white raw values 18 20 15
+  // black raw values 80 90 70
 
-  int green[] = {175, 225, 174};
+  int green[] = {266, 236, 266};
   bool greenFlag[] = {false, false, false};
 
-  int purple[] = {221, 182, 220};
+  int purple[] = {265, 194, 265};
   bool purpleFlag[] = {false, false, false};
 
-  int yellow[] = {195, 247, 195};
+  int yellow[] = {280, 255, 280};
   bool yellowFlag[] = {false, false, false};
 
   //red
