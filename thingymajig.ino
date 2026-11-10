@@ -15,6 +15,8 @@ const int OUT=4;
 const int trig=13;
 const int echo=12;
 
+long cm;
+
 void setup() {
   Serial.begin(9600);
 
@@ -35,12 +37,7 @@ void setup() {
 }
 
 void loop() {
-  //right motor
-  analogWrite(EnA, 100);
-  //left motor
-  analogWrite(EnB, 100);
-
-  long duration, cm;
+  long duration;
 
   digitalWrite(trig, LOW);
   delayMicroseconds(2);
@@ -123,6 +120,7 @@ void loop() {
   //colour determination and printing
   if (greenFlag[0] && greenFlag[1] && greenFlag[2]){
     Serial.println("GREEN");
+    damsel();
   } else if (purpleFlag[0] && purpleFlag[1] && purpleFlag[2]) {
     Serial.println("PURPLE");
   } else if (yellowFlag[0] && yellowFlag[1] && yellowFlag[2]) {
@@ -155,3 +153,100 @@ void loop() {
 }
 
 long microsecondsToCentimetres(long microseconds) { return microseconds / 29 / 2; }
+
+void decodeDance (seqRaw) {
+  char seq[64];
+  seqRaw.toCharArray(seq, seqRaw.length());
+  for (int i=0;i<seq.length();i++) {
+    switch(seq[i]) {
+      case 'F':
+        F();
+        break;
+      case 'B':
+        B();
+        break;
+      case 'L':
+        L();
+        break;
+      case 'R':
+        R();
+        break;
+    }
+  }
+}
+
+void F () {
+  //right motor
+  analogWrite(EnA, 100);
+  //left motor
+  analogWrite(EnB, 100);
+  delay(500);
+  analogWrite(EnA, 0);
+  analogWrite(EnB, 0);
+}
+
+void B () {
+  //right motor
+  analogWrite(EnA, 0);
+  //left motor
+  analogWrite(EnB, 255);
+  delay(2000);
+  //right motor
+  analogWrite(EnA, 100);
+  //left motor
+  analogWrite(EnB, 100);
+  delay(500);
+  analogWrite(EnA, 0);
+  analogWrite(EnB, 0);
+}
+
+void L () {
+  //right motor
+  analogWrite(EnA, 0);
+  //left motor
+  analogWrite(EnB, 255);
+  delay(500);
+   //right motor
+  analogWrite(EnA, 100);
+  //left motor
+  analogWrite(EnB, 100);
+  delay(500);
+  analogWrite(EnA, 0);
+  analogWrite(EnB, 0);
+}
+
+void R () {
+  //right motor
+  analogWrite(EnA, 255);
+  //left motor
+  analogWrite(EnB, 0);
+  delay(500);
+   //right motor
+  analogWrite(EnA, 100);
+  //left motor
+  analogWrite(EnB, 100);
+  delay(500);
+  analogWrite(EnA, 0);
+  analogWrite(EnB, 0);
+}
+
+void damsel () {
+  int range[90];
+  int pos;
+  for (int i=0;i<90;i++) {
+    analogWrite(EnA, 50);
+    analogWrite(EnB, 0);
+    delay(280);
+    analogWrite(EnA, 0);
+    range[i]=cm;
+  }
+  for (int j=1;j<90;j++) {
+    if (range[j]>range[j-1]) {
+      pos=j-1;
+    }
+    else if (range[j]<range[j-1]) {
+      pos=j;
+    }
+  }
+  
+}
