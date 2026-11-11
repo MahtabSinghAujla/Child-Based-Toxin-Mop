@@ -52,16 +52,16 @@ void loop() {
   Serial.print(cm);
   Serial.println("cm");
   
-  // white raw values 18 20 15
-  // black raw values 80 90 70
+  // white raw values 22 25 20
+  // black raw values 121 146 115
 
   int green[] = {266, 236, 266};
   bool greenFlag[] = {false, false, false};
 
-  int purple[] = {265, 194, 265};
+  int purple[] = {256, 145, 252};
   bool purpleFlag[] = {false, false, false};
 
-  int yellow[] = {280, 255, 280};
+  int yellow[] = {290, 261, 287};
   bool yellowFlag[] = {false, false, false};
 
   //red
@@ -69,7 +69,7 @@ void loop() {
   digitalWrite(S2,LOW);
   Serial.print(" R");
   int redVar=pulseIn(OUT,LOW);
-  redVar=map(redVar,23,165,255,0);
+  redVar=map(redVar,22,121,255,0);
   Serial.print(redVar);
 
   //comparing to colours R values
@@ -87,7 +87,7 @@ void loop() {
   digitalWrite(S3,HIGH);
   Serial.print(" G");
   int greenVar=pulseIn(OUT,LOW);
-  greenVar=map(greenVar,28,216,255,0);
+  greenVar=map(greenVar,25,146,255,0);
   Serial.print(greenVar);
 
   //comparing to colours G values
@@ -105,7 +105,7 @@ void loop() {
   digitalWrite(S3,HIGH);
   Serial.print(" B");
   int blueVar=pulseIn(OUT,LOW);
-  blueVar=map(blueVar,23,164,255,0);
+  blueVar=map(blueVar,20,115,255,0);
   Serial.println(blueVar);
 
   //comparing to colours B values
@@ -120,11 +120,13 @@ void loop() {
   //colour determination and printing
   if (greenFlag[0] && greenFlag[1] && greenFlag[2]){
     Serial.println("GREEN");
-    damsel();
+    //damsel();
   } else if (purpleFlag[0] && purpleFlag[1] && purpleFlag[2]) {
     Serial.println("PURPLE");
+    //rward();
   } else if (yellowFlag[0] && yellowFlag[1] && yellowFlag[2]) {
     Serial.println("YELLOW");
+    //lward(); 
   }
 
   greenFlag[0] = false; greenFlag[1] = false; greenFlag[2] = false;
@@ -154,28 +156,28 @@ void loop() {
 
 long microsecondsToCentimetres(long microseconds) { return microseconds / 29 / 2; }
 
-void decodeDance (seqRaw) {
+/*void decodeDance (seqRaw) {
   char seq[64];
   seqRaw.toCharArray(seq, seqRaw.length());
   for (int i=0;i<seq.length();i++) {
     switch(seq[i]) {
       case 'F':
-        F();
+        fward();
         break;
       case 'B':
-        B();
+        bward();
         break;
       case 'L':
-        L();
+        lward();
         break;
       case 'R':
-        R();
+        rward();
         break;
     }
   }
-}
+}*/
 
-void F () {
+void fward () {
   //right motor
   analogWrite(EnA, 100);
   //left motor
@@ -185,7 +187,7 @@ void F () {
   analogWrite(EnB, 0);
 }
 
-void B () {
+void bward () {
   //right motor
   analogWrite(EnA, 0);
   //left motor
@@ -200,7 +202,7 @@ void B () {
   analogWrite(EnB, 0);
 }
 
-void L () {
+void lward () {
   //right motor
   analogWrite(EnA, 0);
   //left motor
@@ -215,7 +217,7 @@ void L () {
   analogWrite(EnB, 0);
 }
 
-void R () {
+void rward () {
   //right motor
   analogWrite(EnA, 255);
   //left motor
