@@ -30,27 +30,16 @@ void setup() {
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
 
-  qtr.setTypeRC();
+  qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){A0, A1, A2, A3}, SensorCount);
+  for (uint8_t i = 0; i < 400; i++) {
+      qtr.calibrate();
+    }
 
   Serial.begin(9600);
 }
 
 void loop() {
-  long duration;
-
-  digitalWrite(trig, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trig, HIGH);
-  delayMicroseconds(5);
-  digitalWrite(trig, LOW);
-
-  duration = pulseIn(echo, HIGH);
-
-  //record and print time
-  cm = microsecondsToCentimetres(duration);  
-  Serial.print(cm);
-  Serial.println("cm");
   
   // white raw values 22 25 20
   // black raw values 121 146 115
@@ -67,10 +56,10 @@ void loop() {
   //red
   digitalWrite(S2,LOW);
   digitalWrite(S2,LOW);
-  Serial.print(" R");
+  //Serial.print(" R");
   int redVar=pulseIn(OUT,LOW);
   redVar=map(redVar,22,121,255,0);
-  Serial.print(redVar);
+  //Serial.print(redVar);
 
   //comparing to colours R values
   if (abs(redVar-green[0])<10) {
@@ -85,10 +74,10 @@ void loop() {
   //green
   digitalWrite(S2,HIGH);
   digitalWrite(S3,HIGH);
-  Serial.print(" G");
+  //Serial.print(" G");
   int greenVar=pulseIn(OUT,LOW);
   greenVar=map(greenVar,25,146,255,0);
-  Serial.print(greenVar);
+  //Serial.print(greenVar);
 
   //comparing to colours G values
   if (abs(greenVar-green[1])<10) {
@@ -103,10 +92,10 @@ void loop() {
   //blue
   digitalWrite(S2,LOW);
   digitalWrite(S3,HIGH);
-  Serial.print(" B");
+  //Serial.print(" B");
   int blueVar=pulseIn(OUT,LOW);
   blueVar=map(blueVar,20,115,255,0);
-  Serial.println(blueVar);
+  //Serial.println(blueVar);
 
   //comparing to colours B values
   if (abs(blueVar-green[2])<10) {
@@ -133,24 +122,23 @@ void loop() {
   purpleFlag[0] = false; purpleFlag[1] = false; purpleFlag[2] = false;
   yellowFlag[0] = false; yellowFlag[1] = false; yellowFlag[2] = false;
 
-  //line array
-  qtr.read(sensorValues);
-  int corrVal = 0;
-  for (uint8_t i = 0; i < SensorCount; i++) {
-    if (i==0) {
-      corrVal+=(2*sensorValues[i]);
-    } else if (i==1) {
-      corrVal+=sensorValues[i];
-    } else if (i==2) {
-      corrVal-=sensorValues[i];
-    } else if (i==3) {
-      corrVal-=(2*sensorValues[i]);
-    }
-  }
-  Serial.print("corrVal ");
+  static uint16_t lastError = 0;
+  int16_t position = qtr.readLineBlack(sensorValues);
+  Serial.println(position);
+
+  int16_t error = position - 1000;
+  int16_t corrVal = 0.1 * error + 5 * (error - lastError);
+  lastError = error;
+  int16_t m1Speed = 75 + corrVal;
+  int16_t m2Speed = 75 - corrVal;
   Serial.println(corrVal);
   
-  Serial.println();
+  if (m1Speed < 0) { m1Speed = 0; }
+  if (m2Speed < 0) { m2Speed = 0; }
+  
+  analogWrite(EnA, m1Speed);
+  analogWrite(EnB, m2Speed);
+
   delay(100);
 }
 
@@ -233,13 +221,27 @@ void rward () {
 }
 
 void damsel () {
+  
   int range[90];
   int pos;
+  long duration;
   for (int i=0;i<90;i++) {
     analogWrite(EnA, 50);
     analogWrite(EnB, 0);
     delay(280);
     analogWrite(EnA, 0);
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(trig, LOW);
+
+    duration = pulseIn(echo, HIGH);
+
+    //record and print time
+    cm = microsecondsToCentimetres(duration);  
+    //Serial.print(cm);
+    //Serial.println("cm");
     range[i]=cm;
   }
   for (int j=1;j<90;j++) {
