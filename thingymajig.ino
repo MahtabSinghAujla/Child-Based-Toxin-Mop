@@ -18,7 +18,8 @@ const int echo=12;
 long cm;
 
 void setup() {
-  Serial.begin(9600);
+Serial.begin(9600);
+  Serial.println("Start");
 
   pinMode(EnA, OUTPUT);
   pinMode(EnB, OUTPUT);
@@ -32,11 +33,14 @@ void setup() {
 
   qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){A0, A1, A2, A3}, SensorCount);
-  for (uint8_t i = 0; i < 400; i++) {
-      qtr.calibrate();
-    }
+  for (uint8_t i = 0; i < 250; i++)
+  {
+    qtr.calibrate();
+    delay(20);
+  }
 
-  Serial.begin(9600);
+  Serial.println("Calibrated");
+  
 }
 
 void loop() {
@@ -122,13 +126,10 @@ void loop() {
   purpleFlag[0] = false; purpleFlag[1] = false; purpleFlag[2] = false;
   yellowFlag[0] = false; yellowFlag[1] = false; yellowFlag[2] = false;
 
-  static uint16_t lastError = 0;
   int16_t position = qtr.readLineBlack(sensorValues);
-  Serial.println(position);
+  //Serial.println(position);
 
-  int16_t error = position - 1000;
-  int16_t corrVal = 0.1 * error + 5 * (error - lastError);
-  lastError = error;
+  int16_t corrVal = 0.01*position;
   int16_t m1Speed = 75 + corrVal;
   int16_t m2Speed = 75 - corrVal;
   Serial.println(corrVal);
