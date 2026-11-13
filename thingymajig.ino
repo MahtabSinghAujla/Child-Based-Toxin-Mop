@@ -1,19 +1,18 @@
 #include <QTRSensors.h>
 
-
 QTRSensors qtr;
 const uint8_t SensorCount = 4;
 uint16_t sensorValues[SensorCount];
 
-const int EnA=11;
-const int EnB=10;
+const int EnA=9;
+const int EnB=5;
 
 const int S3=2;
 const int S2=3;
 const int OUT=4;
 
-const int trig=13;
-const int echo=12;
+const int trig=8;
+const int echo=7;
 
 long cm;
 
@@ -48,19 +47,18 @@ void loop() {
   // white raw values 22 25 20
   // black raw values 121 146 115
 
-  int green[] = {266, 236, 266};
+  int green[] = {225, 116, 221};
   bool greenFlag[] = {false, false, false};
 
-  int purple[] = {256, 145, 252};
+  int purple[] = {257, 72, 250};
   bool purpleFlag[] = {false, false, false};
 
-  int yellow[] = {290, 261, 287};
+  int yellow[] = {288, 245, 280};
   bool yellowFlag[] = {false, false, false};
 
   //red
   digitalWrite(S2,LOW);
   digitalWrite(S2,LOW);
-  //Serial.print(" R");
   int redVar=pulseIn(OUT,LOW);
   redVar=map(redVar,22,121,255,0);
   //Serial.print(redVar);
@@ -78,7 +76,6 @@ void loop() {
   //green
   digitalWrite(S2,HIGH);
   digitalWrite(S3,HIGH);
-  //Serial.print(" G");
   int greenVar=pulseIn(OUT,LOW);
   greenVar=map(greenVar,25,146,255,0);
   //Serial.print(greenVar);
@@ -96,7 +93,6 @@ void loop() {
   //blue
   digitalWrite(S2,LOW);
   digitalWrite(S3,HIGH);
-  //Serial.print(" B");
   int blueVar=pulseIn(OUT,LOW);
   blueVar=map(blueVar,20,115,255,0);
   //Serial.println(blueVar);
@@ -113,7 +109,7 @@ void loop() {
   //colour determination and printing
   if (greenFlag[0] && greenFlag[1] && greenFlag[2]){
     Serial.println("GREEN");
-    //damsel();
+    damsel();
   } else if (purpleFlag[0] && purpleFlag[1] && purpleFlag[2]) {
     Serial.println("PURPLE");
     //rward();
@@ -128,17 +124,19 @@ void loop() {
 
   int16_t position = qtr.readLineBlack(sensorValues);
   //Serial.println(position);
-
-  int16_t corrVal = 0.01*position;
-  int16_t m1Speed = 75 + corrVal;
-  int16_t m2Speed = 75 - corrVal;
+  int16_t corrVal = (1500-position)*0.05;//3000->-75, 0->75
+  int16_t m1 = 100 + corrVal;
+  int16_t m2 = 100 - corrVal;
+  //Serial.print("Correction Value: ");
   Serial.println(corrVal);
   
-  if (m1Speed < 0) { m1Speed = 0; }
-  if (m2Speed < 0) { m2Speed = 0; }
+  if (m1 < 0) { m1 = 0; }
+  if (m2 < 0) { m2 = 0; }
   
-  analogWrite(EnA, m1Speed);
-  analogWrite(EnB, m2Speed);
+  //left motor
+  analogWrite(EnB, m1);
+  //right motor
+  analogWrite(EnA, m2);
 
   delay(100);
 }
@@ -223,13 +221,13 @@ void rward () {
 
 void damsel () {
   
-  int range[90];
-  int pos;
+  int range[120];
+  int pos=0;
   long duration;
-  for (int i=0;i<90;i++) {
+  for (int i=0;i<120;i++) {
     analogWrite(EnA, 50);
     analogWrite(EnB, 0);
-    delay(280);
+    delay(100);
     analogWrite(EnA, 0);
     digitalWrite(trig, LOW);
     delayMicroseconds(2);
@@ -244,14 +242,16 @@ void damsel () {
     //Serial.print(cm);
     //Serial.println("cm");
     range[i]=cm;
+    Serial.println(cm);
   }
-  for (int j=1;j<90;j++) {
-    if (range[j]>range[j-1]) {
-      pos=j-1;
-    }
-    else if (range[j]<range[j-1]) {
+  for (int j=0;j<120;j++) {
+    if (range[pos]>range[j]) {
       pos=j;
     }
   }
+  Serial.print("Position: ");
+  Serial.print(pos);
+  Serial.print(", Distance: ");
+  Serial.println(range[pos]);
   
 }
